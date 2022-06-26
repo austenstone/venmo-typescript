@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        node: [ '12', '14', '16' ]
+        node: ["12", "14", "16"]
     name: 🔨 Build 🧪 Test 🧹 Lint
     runs-on: ubuntu-latest
 
@@ -40,5 +40,65 @@ jobs:
       - name: 💾 Archive artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: dist
-          path: dist/
+          name: lib
+          path: lib/
+
+  publish_npm:
+    name: 🔴 NPM publish
+    needs: ["build"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: 🟩 Setup Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: ⬇️ Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: lib
+
+      - name: 🔴 NPM publish
+        continue-on-error: true
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish
+
+  publish_github:
+    name: 😺 GitHub publish
+    needs: ["build"]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: 🟩 Setup Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      - name: ⬇️ Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: lib
+
+      - name: Update package.json name 📝
+        uses: jossef/action-set-json-field@v1
+        with:
+          file: package.json
+          field: name
+          value: "@${{ github.repository_owner }}/${{ github.event.repository.name }}"
+
+      - name: 😺 GitHub publish
+        continue-on-error: true
+        env:
+          OWNER: ${{ github.repository_owner }}
+          NPM_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          echo "@${OWNER}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${NPM_TOKEN}" >> .npmrc
+          cat .npmrc
+          npm publish

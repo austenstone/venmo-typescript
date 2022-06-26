@@ -1,7 +1,7 @@
 {
-  "name": "markdown-interpolation",
-  "version": "1.5.0",
-  "description": "Add an issue or pull request to a project",
+  "name": "venmo-typescript",
+  "version": "1.0.0",
+  "description": "Library for interacting with Venmo API.",
   "main": "lib/markdown.js",
   "types": "lib/markdown.d.ts",
   "scripts": {
