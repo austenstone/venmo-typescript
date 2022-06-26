@@ -45,7 +45,7 @@ export class Venmo {
   }
 
   private _fetch = async (method, path, body, headers?, options?): Promise<Response> => {
-    console.log('->', path, body, headers);
+    console.debug('->', path, body, headers);
     return fetch(`${Venmo.base}/${path}`, {
       method: method,
       body: JSON.stringify(body),
@@ -55,13 +55,14 @@ export class Venmo {
       },
       ...options
     }).then(res => {
-      console.log('<-', res)
+      console.debug('<-', res)
       return res;
     });
   }
 
-  login = (phoneEmailUsername, password, headers?): Promise<Response> => {
-    return this._fetch('POST', 'oauth/access_token', {
+  login = async (phoneEmailUsername, password, headers?): Promise<Response |
+   undefined> => {
+    const res = await this._fetch('POST', 'oauth/access_token', {
       phone_email_or_username: phoneEmailUsername,
       client_id: 1,
       password: password
@@ -69,9 +70,14 @@ export class Venmo {
       'device-id': this.deviceId,
       ...headers
     });
+    if (!res.ok) {
+      throw(`Login failed ${res.status}`);
+    }
+    this.access = await res.json();
+    return res;
   }
 
-  twoFactor = (otpSecret): Promise<Response> => {
+  twoFactorToken = (otpSecret): Promise<Response> => {
     return this._fetch('POST', `account/two-factor/token`, {
       via: "sms"
     }, {
@@ -81,33 +87,33 @@ export class Venmo {
   }
 
   easyLogin = async (phoneEmailUsername, password): Promise<Access | void> => {
-    const ans = await this.login(phoneEmailUsername, password);
-    if (ans.ok) {
-      this.access = await ans.json();
-      return this.access;
+    let loginRes;
+    try {
+      loginRes = await this.login(phoneEmailUsername, password);
+    } catch (err) {
+      const otpSecret = loginRes.headers.get('venmo-otp-secret');
+      if (!otpSecret) {
+        throw new Error('No otp secret');
+      }
+      const otpRes = await this.twoFactorToken(otpSecret);
+      if (!otpRes.ok) {
+        throw new Error('Two factor request failed');
+      }
+      const otpCode = await new Promise((res) => {
+        readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+        }).question('Enter OTP code:', (answer) => res(answer))
+      });
+      try {
+        await this.login(phoneEmailUsername, password, {
+          'venmo-otp-secret': otpSecret,
+          'venmo-otp': otpCode
+        });
+      } catch {
+        throw new Error('Two factor failed. Check code.');
+      }
     }
-    const otpSecret = ans.headers.get('venmo-otp-secret');
-    if (!otpSecret) {
-      throw new Error('No otp secret');
-    }
-    const twoFactorResponse = await this.twoFactor(otpSecret);
-    if (!twoFactorResponse.ok) {
-      throw new Error('Two factor request failed');
-    }
-    const otpCode = await new Promise((res) => {
-      readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      }).question('Enter OTP code:', (answer) => res(answer))
-    });
-    const twoFactorLoginResponse = await this.login(phoneEmailUsername, password, {
-      'venmo-otp-secret': otpSecret,
-      'venmo-otp': otpCode
-    });
-    if (!twoFactorLoginResponse.ok) {
-      throw new Error('Two factor failed. Check code.');
-    }
-    this.access = await twoFactorLoginResponse.json();
   }
 
   request = async (method, path, body?): Promise<Response> => {
