@@ -1,0 +1,38 @@
+{
+  "name": "markdown-interpolation",
+  "version": "1.5.0",
+  "description": "Add an issue or pull request to a project",
+  "main": "lib/markdown.js",
+  "types": "lib/markdown.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn src/index.ts"
+  },
+  "keywords": [
+    "node",
+    "typescript"
+  ],
+  "author": "Austen Stone",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/austenstone/markdown-interpolation.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node": "^16.11.26",
+    "@typescript-eslint/eslint-plugin": "^5.10.1",
+    "@typescript-eslint/parser": "^5.10.1",
+    "eslint": "^8.10.0",
+    "eslint-config-google": "^0.14.0",
+    "jest": "^27.5.1",
+    "jest-cli": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.6.2"
+  }
+}

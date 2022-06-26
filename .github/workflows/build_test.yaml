@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+  push:
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        node: [ '12', '14', '16' ]
+    name: 🔨 Build 🧪 Test 🧹 Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 🟩 Setup Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: 🟢 Install node modules
+        run: npm ci
+
+      - name: 🔨 Build
+        run: npm run build
+
+      - name: 🧪 Test
+        run: npm run test
+
+      - name: 🧹 Lint Demo
+        run: npm run lint
+
+      - name: 💾 Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist/
