@@ -5,7 +5,7 @@ Typescript/Javascript library for interacting with the Venmo API.
 ## Example
 
 ```typescript
-import { Venmo } from "venmo-api";
+import { Venmo } from "venmo-typescript";
 
 const username = "username or email or phone";
 const password = "password";

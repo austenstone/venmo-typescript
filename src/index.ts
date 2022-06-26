@@ -60,7 +60,7 @@ export class Venmo {
     });
   }
 
-  private login = (phoneEmailUsername, password, headers?): Promise<Response> => {
+  login = (phoneEmailUsername, password, headers?): Promise<Response> => {
     return this._fetch('POST', 'oauth/access_token', {
       phone_email_or_username: phoneEmailUsername,
       client_id: 1,
@@ -71,7 +71,7 @@ export class Venmo {
     });
   }
 
-  private twoFactor = (otpSecret): Promise<Response> => {
+  twoFactor = (otpSecret): Promise<Response> => {
     return this._fetch('POST', `account/two-factor/token`, {
       via: "sms"
     }, {
