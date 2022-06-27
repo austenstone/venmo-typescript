@@ -57,6 +57,7 @@
   "exclude": [
     "lib",
     "node_modules",
-    "tests"
+    "tests",
+    "jest.config.*"
   ]
 }
