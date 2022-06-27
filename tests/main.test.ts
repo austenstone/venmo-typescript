@@ -15,7 +15,7 @@ test('Login works', async () => {
 describe('API works', () => {
   let v: Venmo;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     v = new Venmo();
     if (process.env.EMAIL && process.env.PASSWORD) {
       const res = await v.easyLogin(process.env.EMAIL, process.env.PASSWORD);
@@ -23,7 +23,7 @@ describe('API works', () => {
     }
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await v.logout();
   });
   
@@ -39,7 +39,7 @@ describe('API works', () => {
 
   describe('Get user', () => {
     let user: User;
-    beforeEach(async () => {
+    beforeAll(async () => {
       const usernames = process.env.USERNAMES?.split(',') || [];
       const username = usernames[0];
       const userResponse = await v.userQuery(username);
