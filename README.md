@@ -33,6 +33,7 @@ for (const username of usernames) {
 
 ## Payments
 Negative(-) amounts are payment requests.
+
 Positive(+) amounts are payments.
 
 ## Manual Login
