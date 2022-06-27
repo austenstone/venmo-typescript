@@ -1,4 +1,4 @@
-# Venmo Typescript
+# Venmo Typescript &middot; [![npm version](https://img.shields.io/npm/v/venmo-typescript.svg?style=flat)](https://www.npmjs.com/package/venmo-typescript)
 
 Typescript/Javascript library for interacting with the [Venmo API](https://github.com/mmohades/VenmoApiDocumentation).
 
