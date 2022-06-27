@@ -19,7 +19,7 @@
   "readme": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/austenstone/markdown-interpolation.git"
+    "url": "https://github.com/austenstone/venmo-typescript.git"
   },
   "license": "MIT",
   "devDependencies": {
