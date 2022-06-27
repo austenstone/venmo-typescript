@@ -32,7 +32,8 @@ for (const username of usernames) {
 ```
 
 ## Payments
-Negative amounts are requests to pay. Positive amounts are payments.
+Negative(-) amounts are payment requests.
+Positive(+) amounts are payments.
 
 ## Manual Login
 You can also manually login and manage the otp code yourself. See how [easyLogin](https://github.com/austenstone/venmo-typescript/blob/main/src/index.ts#L85-L118) works.
