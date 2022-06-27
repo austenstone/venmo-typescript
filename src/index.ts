@@ -24,7 +24,7 @@ export class Venmo {
     ...options
   });
 
-  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<Response | undefined> => {
+  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<Response | void> => {
     const res = await this._fetch('POST', 'oauth/access_token', {
       phone_email_or_username: phoneEmailUsername,
       client_id: 1,
@@ -34,7 +34,7 @@ export class Venmo {
       ...headers
     });
     if (res.ok) {
-      this.access = await res.json();
+      this.access = await res.json() as any;
       return res;
     }
   }
@@ -63,9 +63,9 @@ export class Venmo {
    */
   easyLogin = async (phoneEmailUsername: string, password: string): Promise<Access | void> => {
     const loginRes = await this.login(phoneEmailUsername, password);
-    if (loginRes.ok) return this.access;
+    if (loginRes?.ok) return this.access;
 
-    const otpSecret = loginRes.headers.get('venmo-otp-secret');
+    const otpSecret = loginRes?.headers.get('venmo-otp-secret');
     if (!otpSecret) {
       throw new Error('No otp secret');
     }
@@ -83,7 +83,7 @@ export class Venmo {
       'venmo-otp-secret': otpSecret,
       'venmo-otp': otpCode
     });
-    if (otpLogin.ok) return this.access;
+    if (otpLogin?.ok) return this.access;
     throw new Error('Two factor failed. Check code.');
   }
 
