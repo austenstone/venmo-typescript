@@ -1,26 +1,28 @@
-# Venmo API
+# Venmo Typescript
 
-Typescript/Javascript library for interacting with the Venmo API.
+Typescript/Javascript library for interacting with the [Venmo API](https://github.com/mmohades/VenmoApiDocumentation).
 
 ## Example
 
 ```typescript
 import { Venmo } from "venmo-typescript";
 
-const username = "username or email or phone";
-const password = "password";
-const venmo = new Venmo();
-await venmo.login(username, password);
+const v = new Venmo();
+await v.easyLogin(process.env.EMAIL, process.env.PASSWORD);
 
-const query = "user123";
-const users = await venmo.userQuery(query);
-const user = users.find(
-  (user) => user.username.toLowerCase() === query.toLowerCase()
-);
-if (user) {
-  await venmo.pay(user.id, 1, "Payment Note");
+const usernames = process.env.USERNAMES?.split(',') || [];
+for (const username of usernames) {
+  const user = await v.userQuery(username)?.find(
+    (user) => user.username.toLowerCase() === username.toLowerCase()
+  );
+  if (user) {
+    const paymentRes = await v.pay(user.id, -1, 'venmo-typescript test', 'private');
+  }
 }
 ```
 
+## Payments
+Negative amounts are requests to pay. Positive amounts are payments.
+
 ## Manual Login
-You can also manually login and manage the otp code yourself. See how [easyLogin](./src/easyLogin) works.
+You can also manually login and manage the otp code yourself. See how [easyLogin](https://github.com/austenstone/venmo-typescript/blob/main/src/index.ts#L85-L118) works.
