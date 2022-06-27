@@ -3,6 +3,12 @@
 Typescript/Javascript library for interacting with the [Venmo API](https://github.com/mmohades/VenmoApiDocumentation).
 
 ## Example
+Given the following environemnt variables:
+* `EMAIL` - The email to login with
+* `PASSWORD` - The password to login with
+* `USERNAMES` - A list of csv venmo usernames EX: user1,user2,user3
+
+This example will login and request $1.00 from the users listed in `USERNAMES`.
 
 ```typescript
 import { Venmo } from "venmo-typescript";
