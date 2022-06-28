@@ -4,7 +4,7 @@ Typescript/Javascript library for interacting with the [Venmo API](https://githu
 
 ## Examples
 
-### Example Payment
+### Payment
 
 This example will login and request $1.00 from the users listed in `USERNAMES`.
 
@@ -31,7 +31,7 @@ for (const username of usernames) {
 }
 ```
 
-### Example Get My Profile
+### Get My Profile
 
 ```typescript
 import { Venmo } from "venmo-typescript";
