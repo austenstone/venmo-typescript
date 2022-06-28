@@ -1,6 +1,6 @@
 {
   "name": "venmo-typescript",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Class for interacting with the Venmo API.",
   "main": "lib/markdown.js",
   "types": "lib/markdown.d.ts",
