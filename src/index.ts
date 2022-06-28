@@ -61,7 +61,7 @@ export class Venmo {
    * @param password The password
    * @returns Access object
    */
-  easyLogin = async (phoneEmailUsername: string, password: string): Promise<Access | void> => {
+  easyLogin = async (phoneEmailUsername: string, password: string, otpCallback?: () => Promise<string>): Promise<Access | void> => {
     const loginRes = await this.login(phoneEmailUsername, password);
     if (loginRes?.ok) return this.access;
 
@@ -73,12 +73,10 @@ export class Venmo {
     if (!otpRes.ok) {
       throw new Error('Two factor request failed');
     }
-    const otpCode = await new Promise((res) => {
-      readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      }).question('Enter OTP code:', (answer) => res(answer))
-    });
+    if (!otpCallback) {
+      throw new Error('No otp callback');
+    }
+    const otpCode = await otpCallback();
     const otpLogin = await this.login(phoneEmailUsername, password, {
       'venmo-otp-secret': otpSecret,
       'venmo-otp': otpCode

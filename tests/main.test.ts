@@ -1,11 +1,19 @@
 import { test, expect } from '@jest/globals';
 import { Venmo } from '../src/index';
 import { User } from '../src/types';
+import readline from 'readline';
 
 test('Login works', async () => {
   const v = new Venmo();
   if (process.env.EMAIL && process.env.PASSWORD) {
-    const res = await v.easyLogin(process.env.EMAIL, process.env.PASSWORD);
+    const res = await v.easyLogin(process.env.EMAIL, process.env.PASSWORD, async () => {
+      return await new Promise((res) => {
+        readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+        }).question('Enter OTP code:', (answer) => res(answer))
+      });
+    });
     expect(res).toBeTruthy();
   }
   v.logout();
