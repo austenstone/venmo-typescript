@@ -1,5 +1,4 @@
 import fetch, { Response } from 'node-fetch';
-import readline from 'readline';
 import { Access, Payment, PaymentMethods, User } from './types';
 
 export class Venmo {
