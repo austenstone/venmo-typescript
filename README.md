@@ -31,6 +31,23 @@ for (const username of usernames) {
 }
 ```
 
+### Deal with 2FA OTP code
+You can deal with 2FA by passing a callback function that returns the otp code. In this example we are using stdin to have the user manually type the code they get via SMS.
+```typescript
+import { Venmo } from "venmo-typescript";
+import readline from 'readline';
+
+const v = new Venmo();
+await v.easyLogin(process.env.EMAIL, process.env.PASSWORD, async () => {
+  return await new Promise((res) => {
+    readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    }).question('Enter OTP code:', (answer) => res(answer))
+  });
+});
+```
+
 ### Get My Profile
 
 ```typescript
