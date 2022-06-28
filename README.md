@@ -59,4 +59,4 @@ console.log(await v.getUserProfile());
 ```
 
 ## Manual Login
-You can also manually login and manage the otp code yourself. See how [easyLogin](https://github.com/austenstone/venmo-typescript/blob/main/src/index.ts#L85-L118) works.
+You can also manually login and manage the otp code yourself. See how [easyLogin](https://github.com/austenstone/venmo-typescript/blob/a3d47c5e86f122815caf92a0bbe054d03d9700b4/src/index.ts#L63) works.
