@@ -2,9 +2,10 @@
   "name": "venmo-typescript",
   "version": "2.0.1",
   "description": "Class for interacting with the Venmo API.",
-  "main": "lib/markdown.js",
-  "types": "lib/markdown.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
@@ -31,9 +32,11 @@
     "eslint-config-google": "^0.14.0",
     "jest": "^28.1.1",
     "jest-cli": "^28.1.1",
-    "node-fetch": "^2.6.7",
     "ts-jest": "^28.0.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
   }
 }

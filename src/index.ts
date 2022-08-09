@@ -1,4 +1,5 @@
-import fetch, { Response } from 'node-fetch';
+import axios, { AxiosResponse } from 'axios';
+
 import { Access, Payment, PaymentMethods, User } from './types';
 
 export class Venmo {
@@ -13,17 +14,22 @@ export class Venmo {
 
   private _fetch = async (
     method: string, path: string, body: any, headers?: any, options?: any
-  ): Promise<Response> => fetch(`${Venmo.base}/${path}`, {
+  ): Promise<AxiosResponse> => axios(`${Venmo.base}/${path}`, {
     method: method,
-    body: JSON.stringify(body),
+    data: body,
     headers: {
-      'Content-Type': 'application/json',
-      ...headers
+      'Accept': '*/*',
+      'Accept-Encoding': 'gzip, deflate',
+      'User-Agent': 'Venmo/9.26.0 (iPhone; iOS 10.3.2; Scale/2.00)',
+      ...headers,
     },
     ...options
+  }).catch(err => {
+    console.error(method, path, err.response.data);
+    return err.response;
   });
 
-  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<Response | void> => {
+  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<AxiosResponse> => {
     const res = await this._fetch('POST', 'oauth/access_token', {
       phone_email_or_username: phoneEmailUsername,
       client_id: 1,
@@ -32,20 +38,22 @@ export class Venmo {
       'device-id': this.deviceId,
       ...headers
     });
-    if (res.ok) {
-      this.access = await res.json() as any;
-      return res;
+    if (res.status === 201) {
+      this.access = await res.data as any;
     }
+    return res;
   }
 
   logout = async (): Promise<void> => {
-    const logoutRes = await this.request('DELETE', 'oauth/access_token');
-    if (logoutRes.ok) {
+    const logoutRes = await this.request('DELETE', 'oauth/access_token', {
+      client_id: 1,
+    });
+    if (logoutRes.status === 200) {
       this.access = undefined;
     }
   }
 
-  twoFactorToken = (otpSecret: string): Promise<Response> => {
+  twoFactorToken = (otpSecret: string): Promise<AxiosResponse> => {
     return this._fetch('POST', `account/two-factor/token`, {
       via: "sms"
     }, {
@@ -62,29 +70,29 @@ export class Venmo {
    */
   easyLogin = async (phoneEmailUsername: string, password: string, otpCallback?: () => Promise<string>): Promise<Access | void> => {
     const loginRes = await this.login(phoneEmailUsername, password);
-    if (loginRes?.ok) return this.access;
+    if (loginRes.status === 201) return this.access;
 
-    const otpSecret = loginRes?.headers.get('venmo-otp-secret');
+    const otpSecret = loginRes?.headers['venmo-otp-secret'];
     if (!otpSecret) {
       throw new Error('No otp secret');
+    } else if (!otpCallback) {
+      throw new Error('No otp callback');
     }
     const otpRes = await this.twoFactorToken(otpSecret);
-    if (!otpRes.ok) {
+    if (otpRes.status !== 200) {
+      console.error(otpRes);
       throw new Error('Two factor request failed');
-    }
-    if (!otpCallback) {
-      throw new Error('No otp callback');
     }
     const otpCode = await otpCallback();
     const otpLogin = await this.login(phoneEmailUsername, password, {
       'venmo-otp-secret': otpSecret,
       'venmo-otp': otpCode
     });
-    if (otpLogin?.ok) return this.access;
+    if ([200, 201].includes(otpLogin?.status || 0)) return this.access;
     throw new Error('Two factor failed. Check code.');
   }
 
-  request = async (method: string, path: string, body?: any): Promise<Response> => {
+  request = async (method: string, path: string, body?: any): Promise<AxiosResponse> => {
     if (!this.access?.access_token) {
       throw new Error('Not logged in');
     }
@@ -95,7 +103,7 @@ export class Venmo {
 
   private requestJson = async (method: string, path: string, body?: any): Promise<any> => {
     const res = await this.request(method, path, body);
-    return res.ok ? res.json() : null;
+    return res.status === 200 ? res.data : null;
   }
 
   /**
