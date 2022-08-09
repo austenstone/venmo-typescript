@@ -7,16 +7,40 @@ test('Login works', async () => {
   const v = new Venmo();
   if (process.env.EMAIL && process.env.PASSWORD) {
     const res = await v.easyLogin(process.env.EMAIL, process.env.PASSWORD, async () => {
-      return await new Promise((res) => {
+      return await new Promise((resolve) => {
         readline.createInterface({
           input: process.stdin,
           output: process.stdout
-        }).question('Enter OTP code:', (answer) => res(answer))
+        }).question('Enter OTP code:', (answer) => {
+          resolve(answer);
+        })
       });
     });
     expect(res).toBeTruthy();
   }
   v.logout();
+}, 30000);
+
+test('README example works', async () => {
+  // Create a venmo client.
+  const v = new Venmo();
+  const email = process.env.EMAIL || '';
+  const password = process.env.PASSWORD || '';
+  await v.easyLogin(email, password);
+  
+  const usernames = process.env.USERNAMES?.split(',') || [];
+  // For each recipient username
+  for (const username of usernames) {
+      // Query user so we can get the id.
+      const userResponse = await v.userQuery(username);
+      const user = userResponse?.find(
+          (user) => user.username.toLowerCase() === username.toLowerCase()
+      );
+      if (user) {
+          // Request payment with the user id.
+          await v.pay(user.id, -1, 'Note for transaction.', 'private');
+      }
+  }
 });
 
 

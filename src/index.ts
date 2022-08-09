@@ -74,14 +74,14 @@ export class Venmo {
 
     const otpSecret = loginRes?.headers['venmo-otp-secret'];
     if (!otpSecret) {
-      throw new Error('No otp secret');
+      throw new Error(`No otp secret ${loginRes.status}`);
     } else if (!otpCallback) {
       throw new Error('No otp callback');
     }
     const otpRes = await this.twoFactorToken(otpSecret);
     if (otpRes.status !== 200) {
       console.error(otpRes);
-      throw new Error('Two factor request failed');
+      throw new Error(`Two factor request failed ${otpRes.status} ${otpRes.statusText} ${JSON.stringify(otpRes.data)}`);
     }
     const otpCode = await otpCallback();
     const otpLogin = await this.login(phoneEmailUsername, password, {
