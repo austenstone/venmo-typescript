@@ -26,7 +26,7 @@ export class Venmo {
     ...options
   }).catch(err => {
     console.error(method, path, err.response.data);
-    throw err;
+    return err.response;
   });
 
   login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<AxiosResponse> => {
