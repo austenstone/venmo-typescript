@@ -14,9 +14,9 @@ export class Venmo {
 
   private _fetch = async (
     method: string, path: string, body: any, headers?: any, options?: any
-  ): Promise<AxiosResponse> => axios.post(`${Venmo.base}/${path}`, body, {
+  ): Promise<AxiosResponse> => axios(`${Venmo.base}/${path}`, {
     method: method,
-    // data: body,
+    data: body,
     headers: {
       'Accept': '*/*',
       'Accept-Encoding': 'gzip, deflate',
