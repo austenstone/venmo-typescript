@@ -14,17 +14,22 @@ export class Venmo {
 
   private _fetch = async (
     method: string, path: string, body: any, headers?: any, options?: any
-  ): Promise<AxiosResponse> => axios(`${Venmo.base}/${path}`, {
+  ): Promise<AxiosResponse> => axios.post(`${Venmo.base}/${path}`, body, {
     method: method,
-    body: JSON.stringify(body),
+    // data: body,
     headers: {
-      'Content-Type': 'application/json',
-      ...headers
+      'Accept': '*/*',
+      'Accept-Encoding': 'gzip, deflate',
+      'User-Agent': 'Venmo/9.26.0 (iPhone; iOS 10.3.2; Scale/2.00)',
+      ...headers,
     },
     ...options
+  }).catch(err => {
+    console.error(method, path, err.response.data);
+    throw err;
   });
 
-  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<AxiosResponse | void> => {
+  login = async (phoneEmailUsername: string, password: string, headers?: any): Promise<AxiosResponse> => {
     const res = await this._fetch('POST', 'oauth/access_token', {
       phone_email_or_username: phoneEmailUsername,
       client_id: 1,
@@ -33,14 +38,16 @@ export class Venmo {
       'device-id': this.deviceId,
       ...headers
     });
-    if (res.status === 200) {
+    if (res.status === 201) {
       this.access = await res.data as any;
-      return res;
     }
+    return res;
   }
 
   logout = async (): Promise<void> => {
-    const logoutRes = await this.request('DELETE', 'oauth/access_token');
+    const logoutRes = await this.request('DELETE', 'oauth/access_token', {
+      client_id: 1,
+    });
     if (logoutRes.status === 200) {
       this.access = undefined;
     }
@@ -63,14 +70,14 @@ export class Venmo {
    */
   easyLogin = async (phoneEmailUsername: string, password: string, otpCallback?: () => Promise<string>): Promise<Access | void> => {
     const loginRes = await this.login(phoneEmailUsername, password);
-    if (loginRes?.status === 200) return this.access;
+    if (loginRes.status === 201) return this.access;
 
     const otpSecret = loginRes?.headers['venmo-otp-secret'];
     if (!otpSecret) {
       throw new Error('No otp secret');
     }
     const otpRes = await this.twoFactorToken(otpSecret);
-    if (otpRes.status !== 200) {
+    if ([200, 201].includes(otpRes.status)) {
       throw new Error('Two factor request failed');
     }
     if (!otpCallback) {
@@ -81,7 +88,7 @@ export class Venmo {
       'venmo-otp-secret': otpSecret,
       'venmo-otp': otpCode
     });
-    if (otpLogin?.status === 200) return this.access;
+    if ([200, 201].includes(otpLogin?.status || 0)) return this.access;
     throw new Error('Two factor failed. Check code.');
   }
 
